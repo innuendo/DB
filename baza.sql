@@ -2,79 +2,43 @@
  * Prosty skrypt tworzący bazę danych na potrzeby mojego projektu
  * firmy przewozowej
  */
- /*
 BEGIN
-  EXECUTE IMMEDIATE 'DROP TABLE Klient';
-EXCEPTION
-  WHEN OTHERS THEN
-    IF sqlcode != -0942 THEN RAISE; 
-    END IF;
+   FOR cur_rec IN 
+   (SELECT object_name, object_type FROM user_objects
+    WHERE object_type IN
+     ('TABLE', 'VIEW', 'PACKAGE', 'PROCEDURE', 'FUNCTION','SEQUENCE') AND
+    object_name IN ('PACZKA', 'USLUGA', 'KLIENT', 'TARYFA','REGION',
+                    'PRZEWOZ_OSOB', 'PRACOWNIK', 'TERMINAL', 'ZLECENIE'))
+   LOOP
+      BEGIN
+         IF cur_rec.object_type = 'TABLE'
+         THEN
+            EXECUTE IMMEDIATE    'DROP '
+                              || cur_rec.object_type
+                              || ' "'
+                              || cur_rec.object_name
+                              || '" CASCADE CONSTRAINTS';
+         ELSE
+            EXECUTE IMMEDIATE    'DROP '
+                              || cur_rec.object_type
+                              || ' "'
+                              || cur_rec.object_name
+                              || '"';
+         END IF;
+      EXCEPTION
+         WHEN OTHERS
+         THEN
+            DBMS_OUTPUT.put_line (   'FAILED: DROP '
+                                  || cur_rec.object_type
+                                  || ' "'
+                                  || cur_rec.object_name
+                                  || '"'
+                                 );
+      END;
+   END LOOP;
 END;
+/
 
-BEGIN
-  EXECUTE IMMEDIATE 'DROP TABLE Zlecenie';
-EXCEPTION
-  WHEN OTHERS THEN
-    IF sqlcode != -0942 THEN RAISE; 
-    END IF;
-END;
-
-BEGIN
-  EXECUTE IMMEDIATE 'DROP TABLE Pracownik';
-EXCEPTION
-  WHEN OTHERS THEN
-    IF sqlcode != -0942 THEN RAISE; 
-    END IF;
-END;
-
-BEGIN
-  EXECUTE IMMEDIATE 'DROP TABLE Usluga';
-EXCEPTION
-  WHEN OTHERS THEN
-    IF sqlcode != -0942 THEN RAISE; 
-    END IF;
-END;
-
-BEGIN
-  EXECUTE IMMEDIATE 'DROP TABLE Przewoz_osob';
-EXCEPTION
-  WHEN OTHERS THEN
-    IF sqlcode != -0942 THEN RAISE; 
-    END IF;
-END;
-
-BEGIN
-  EXECUTE IMMEDIATE 'DROP TABLE Terminal';
-EXCEPTION
-  WHEN OTHERS THEN
-    IF sqlcode != -0942 THEN RAISE; 
-    END IF;
-END;
-
-BEGIN
-  EXECUTE IMMEDIATE 'DROP TABLE Paczka';
-EXCEPTION
-  WHEN OTHERS THEN
-    IF sqlcode != -0942 THEN RAISE; 
-    END IF;
-END;
-
-BEGIN
-  EXECUTE IMMEDIATE 'DROP TABLE Region';
-EXCEPTION
-  WHEN OTHERS THEN
-    IF sqlcode != -0942 THEN RAISE; 
-    END IF;
-END;
-
-BEGIN
-  EXECUTE IMMEDIATE 'DROP TABLE Taryfa';
-EXCEPTION
-  WHEN OTHERS THEN
-    IF sqlcode != -0942 THEN RAISE; 
-    END IF;
-END;
-*/
 CREATE TABLE Klient (
     id NUMBER PRIMARY KEY,
     nazwa VARCHAR2(20) NOT NULL,
