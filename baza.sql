@@ -2,8 +2,80 @@
  * Prosty skrypt tworzący bazę danych na potrzeby mojego projektu
  * firmy przewozowej
  */
+ 
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE Klient';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF sqlcode != -0942 THEN RAISE; 
+    END IF;
+END;
 
-CREATE OR REPLACE TABLE Klient (
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE Zlecenie';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF sqlcode != -0942 THEN RAISE; 
+    END IF;
+END;
+
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE Pracownik';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF sqlcode != -0942 THEN RAISE; 
+    END IF;
+END;
+
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE Usluga';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF sqlcode != -0942 THEN RAISE; 
+    END IF;
+END;
+
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE Przewoz_osob';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF sqlcode != -0942 THEN RAISE; 
+    END IF;
+END;
+
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE Terminal';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF sqlcode != -0942 THEN RAISE; 
+    END IF;
+END;
+
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE Paczka';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF sqlcode != -0942 THEN RAISE; 
+    END IF;
+END;
+
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE Region';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF sqlcode != -0942 THEN RAISE; 
+    END IF;
+END;
+
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE Taryfa';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF sqlcode != -0942 THEN RAISE; 
+    END IF;
+END;
+
+CREATE TABLE Klient (
     id NUMBER PRIMARY KEY,
     nazwa VARCHAR2(20) NOT NULL,
     numer_budynku NUMBER NOT NULL 
@@ -17,7 +89,7 @@ CREATE OR REPLACE TABLE Klient (
 );
 
 
-CREATE OR REPLACE TABLE Zlecenie (
+CREATE TABLE Zlecenie (
     numer VARCHAR2(20) PRIMARY KEY,
     zlecenie_stale CHAR(1) NULL CHECK(zlecenie_stale IN ('Y','N')),
     data_przyjecia DATE NOT NULL,
@@ -29,7 +101,7 @@ CREATE OR REPLACE TABLE Zlecenie (
 );
 
 
-CREATE OR REPLACE TABLE Pracownik (
+CREATE TABLE Pracownik (
     id NUMBER PRIMARY KEY,
     skrot CHAR(2),
     imie VARCHAR2(20) NOT NULL,
@@ -37,7 +109,7 @@ CREATE OR REPLACE TABLE Pracownik (
 );
 
 
-CREATE OR REPLACE TABLE Usluga (
+CREATE TABLE Usluga (
     id NUMBER PRIMARY KEY,
     koszt NUMBER NOT NULL CONSTRAINT koszt CHECK(kost > 0),
     numer_listu VARCHAR2(20) NOT NULL,
@@ -55,7 +127,7 @@ CREATE OR REPLACE TABLE Usluga (
 );
 
 
-CREATE OR REPLACE TABLE Przewoz_osob (
+CREATE TABLE Przewoz_osob (
     id NUMBER PRIMARY KEY,
     ilosc NUMBER NOT NULL
     CONSTRAINT sprawdz_ilosc_osob CHECK ilosc > 0,
@@ -66,7 +138,7 @@ CREATE OR REPLACE TABLE Przewoz_osob (
 );
 
 
-CREATE OR REPLACE TABLE Terminal (
+CREATE TABLE Terminal (
     id NUMBER PRIMARY KEY,
     zwrot CHAR(1) CONSTRAINT sprawdz_zwrot CHECK(zwrot IN ('Y','N')),
     id_uslugi NUMBER NOT NULL,
@@ -74,7 +146,7 @@ CREATE OR REPLACE TABLE Terminal (
 );
 
 
-CREATE OR REPLACE TABLE Paczka (
+CREATE TABLE Paczka (
     id NUMBER PRIMARY KEY,
     masa NUMBER NOT NULL CONSTRAINT sprawdz_mase CHECK(masa > 0),
     gabaryt CHAR(1) CONSTRAINT CHECK(gabaryt IN ('Y','N')),
@@ -83,7 +155,7 @@ CREATE OR REPLACE TABLE Paczka (
 );
 
 
-CREATE OR REPLACE TABLE Region (
+CREATE TABLE Region (
     id NUMBER PRIMARY KEY,
     stawka_podstawowa NUMBER NOT NULL 
     CONSTRAINT sprawdz_podstawowa_stawke CHECK(stawka_podstawowa >= 0),
@@ -93,7 +165,7 @@ CREATE OR REPLACE TABLE Region (
 );
 
 
-CREATE OR REPLACE TABLE Taryfa (
+CREATE TABLE Taryfa (
     wsp_pory NUMBER NOT NULL,
     wsp_dnia NUMBER NOT NULL,
     CONSTRAINT PK PRIMARY KEY (wsp_pory, wsp_dnia)
