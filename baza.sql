@@ -2,7 +2,7 @@
  * Prosty skrypt tworzący bazę danych na potrzeby mojego projektu
  * firmy przewozowej
  */
- 
+ /*
 BEGIN
   EXECUTE IMMEDIATE 'DROP TABLE Klient';
 EXCEPTION
@@ -74,7 +74,7 @@ EXCEPTION
     IF sqlcode != -0942 THEN RAISE; 
     END IF;
 END;
-
+*/
 CREATE TABLE Klient (
     id NUMBER PRIMARY KEY,
     nazwa VARCHAR2(20) NOT NULL,
@@ -111,7 +111,7 @@ CREATE TABLE Pracownik (
 
 CREATE TABLE Usluga (
     id NUMBER PRIMARY KEY,
-    koszt NUMBER NOT NULL CONSTRAINT koszt CHECK(kost > 0),
+    koszt NUMBER NOT NULL CONSTRAINT koszt CHECK(koszt > 0),
     numer_listu VARCHAR2(20) NOT NULL,
     typ_uslugi VARCHAR2(20) NOT NULL,
     potwierdzenie NUMBER NOT NULL,
@@ -130,7 +130,7 @@ CREATE TABLE Usluga (
 CREATE TABLE Przewoz_osob (
     id NUMBER PRIMARY KEY,
     ilosc NUMBER NOT NULL
-    CONSTRAINT sprawdz_ilosc_osob CHECK ilosc > 0,
+    CONSTRAINT sprawdz_ilosc_osob CHECK (ilosc > 0),
     dystans NUMBER NOT NULL
     CONSTRAINT sprawdz_dystans CHECK(dystans > 0),
     id_uslugi NUMBER NOT NULL,
@@ -149,7 +149,8 @@ CREATE TABLE Terminal (
 CREATE TABLE Paczka (
     id NUMBER PRIMARY KEY,
     masa NUMBER NOT NULL CONSTRAINT sprawdz_mase CHECK(masa > 0),
-    gabaryt CHAR(1) CONSTRAINT CHECK(gabaryt IN ('Y','N')),
+    gabaryt CHAR(1) 
+    CONSTRAINT sprawdz_gabaryt CHECK(gabaryt IN ('Y','N')),
     id_uslugi NUMBER NOT NULL,
     CONSTRAINT Usluga2_FK FOREIGN KEY (id_uslugi) REFERENCES Usluga (id)
 );
@@ -170,22 +171,31 @@ CREATE TABLE Taryfa (
     wsp_dnia NUMBER NOT NULL,
     CONSTRAINT PK PRIMARY KEY (wsp_pory, wsp_dnia)
 );
-
-CREATE OR UPDATE TRIGGER uaktualnijKosztCalkowity
-AFTER INSERT OR UPDATE ON Usluga
+/*
+CREATE OR REPLACE TRIGGER uaktualnijKosztCalkowity
+AFTER INSERT ON Usluga FOR EACH ROW
 BEGIN
-    IF (UPDATING) THEN
-        UPDATE Zlecenie SET 
-        Zlecenie.koszt_laczny = Zlecenie.koszt_laczny - :OLD.koszt + :NEW.koszt
-        WHERE Zlecenie.numer = :NEW.id_zlecenia;
-    ELSE
-        UPDATE Zlecenie SET 
-        Zlecenie.koszt_laczny = Zlecenie.koszt_laczny + :NEW.koszt
-        WHERE Zlecenie.numer = :NEW.id_zlecenia;
-    END IF;
+    UPDATE Zlecenie SET 
+    Zlecenie.koszt_laczny = Zlecenie.koszt_laczny + :new.koszt
+    WHERE Zlecenie.numer = :new.id_zlecenia;
 END;
 /
-/*
+
+CREATE OR REPLACE TRIGGER uaktualnijKosztCalkowity
+AFTER UPDATE ON Usluga
+FOR EACH ROW
+DECLARE
+    nowy  Usluga.koszt%TYPE;
+    stary Usluga.koszt%TYPE;
+BEGIN
+    nowy = :NEW.koszt;
+    stary = :OLD.koszt;
+    UPDATE Zlecenie SET 
+    Zlecenie.koszt_laczny = Zlecenie.koszt_laczny + nowy - stary
+    WHERE Zlecenie.numer = :NEW.id_zlecenia;
+END;
+/ 
+
 CREATE FUNCTION ulubieniKlienci(ile NUMBER) RETURN NUMBER IS
 
 BEGIN
